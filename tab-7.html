@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Astral — магазин манг</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            background: #f5e6ea;
+            color: #2d0a0a;
+        }
+
+        .app {
+            max-width: 1300px;
+            margin: 0 auto;
+            background: #fff5f7;
+            min-height: 100vh;
+        }
+
+        /* ===== ШАПКА ===== */
+        .header {
+            background: #b0304a;
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand {
+            font-size: 26px;
+            font-weight: 800;
+            color: #ffd9e1;
+            letter-spacing: 1px;
+        }
+        .brand i {
+            color: #ffb6c9;
+            margin-right: 6px;
+        }
+
+        .search-bar {
+            flex: 1 1 280px;
+            max-width: 460px;
+            display: flex;
+            background: #fff0f3;
+            border-radius: 30px;
+            padding: 3px 6px 3px 18px;
+            border: 1px solid #d97a8a;
+        }
+        .search-bar input {
+            border: none;
+            background: transparent;
+            padding: 9px 4px;
+            font-size: 15px;
+            width: 100%;
+            outline: none;
+            color: #2d0a0a;
+        }
+        .search-bar input::placeholder {
+            color: #a05a6a;
+        }
+        .search-bar button {
+            background: #b0304a;
+            border: none;
+            border-radius: 30px;
+            padding: 7px 18px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .search-bar button:hover {
+            background: #8f1f37;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+        .header-actions a,
+        .header-actions button {
+            background: rgba(255, 255, 255, 0.12);
+            border: none;
+            color: #ffd9e1;
+            font-size: 22px;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            transition: 0.2s;
+        }
+        .header-actions a:hover,
+        .header-actions button:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        /* ===== ФРЕЙМЫ ===== */
+        .frame {
+            display: none;
+            padding: 20px 24px 30px;
+        }
+        .frame.active {
+            display: block;
+        }
+
+        /* ===== БАННЕР (как на скрине) ===== */
+        .banner {
+            background: #d4edda;
+            border-radius: 20px;
+            padding: 18px 28px;
+            margin-bottom: 28px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px solid #b7d7b7;
+        }
+        .banner h2 {
+            color: #1e4a1e;
+            font-size: 20px;
+            font-weight: 700;
+        }
+        .banner h2 i {
+            color: #2d7a2d;
+            margin-right: 10px;
+        }
+        .banner .btn-green {
+            background: #2d7a2d;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 40px;
+            color: white;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.15s;
+        }
+        .banner .btn-green:hover {
+            background: #1e5e1e;
+        }
+
+        /* ===== КАТАЛОГ ===== */
+        .catalog-wrap {
+            display: flex;
+            gap: 28px;
+            flex-wrap: wrap;
+        }
+
+        .sidebar {
+            flex: 0 0 200px;
+            background: #fce4ea;
+            border-radius: 24px;
+            padding: 20px 14px;
+            border: 1px solid #ebc2cc;
+            height: fit-content;
+        }
+        .sidebar h3 {
+            color: #751f33;
+            font-size: 18px;
+            border-bottom: 2px solid #d97a8a;
+            padding-bottom: 10px;
+            margin-bottom: 16px;
+        }
+        .sidebar ul {
+            list-style: none;
+        }
+        .sidebar li {
+            padding: 5px 8px;
+            border-radius: 20px;
+            color: #5f2a36;
+            font-size: 14px;
+            margin-bottom: 4px;
+            background: rgba(255, 215, 225, 0.3);
+            cursor: default;
+        }
+        .sidebar li i {
+            color: #b0304a;
+            width: 20px;
+            margin-right: 6px;
+        }
+
+        .manga-grid {
+            flex: 1;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+            gap: 24px 16px;
+        }
+
+        .manga-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid #f0d3db;
+            cursor: pointer;
+            transition: 0.15s;
+        }
+        .manga-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(140, 50, 70, 0.12);
+        }
+        .manga-card img {
+            width: 100%;
+            aspect-ratio: 2/3;
+            object-fit: cover;
+            background: #d6b7bf;
+            display: block;
+        }
+        .manga-info {
+            padding: 10px 12px 14px;
+        }
+        .manga-info h4 {
+            font-size: 14px;
+            color: #3b1515;
+            line-height: 1.3;
+            margin-bottom: 2px;
+        }
+        .manga-info .author {
+            font-size: 12px;
+            color: #7a4a4a;
+            margin-bottom: 4px;
+        }
+        .manga-info .price-line {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin: 4px 0 6px;
+        }
+        .manga-info .price {
+            font-weight: 700;
+            color: #b0304a;
+            font-size: 16px;
+        }
+        .manga-info .old-price {
+            text-decoration: line-through;
+            color: #a05a6a;
+            font-size: 13px;
+        }
+        .manga-info .discount {
+            background: #b0304a15;
+            color: #b0304a;
+            font-weight: 700;
+            font-size: 12px;
+            padding: 0 8px;
+            border-radius: 12px;
+        }
+        .btn-buy {
+            background: #b0304a;
+            border: none;
+            padding: 7px 0;
+            border-radius: 40px;
+            color: white;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 14px;
+            width: 100%;
+            transition: 0.15s;
+            margin-top: 4px;
+        }
+        .btn-buy:hover {
+            background: #8f1f37;
+        }
+
+        /* ===== ФИЛЬТР ===== */
+        .filter-bar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 6px 12px;
+            background: #fce4ea;
+            padding: 8px 20px;
+            border-radius: 40px;
+            border: 1px solid #ebc2cc;
+            margin-bottom: 24px;
+        }
+        .filter-bar span {
+            font-weight: 600;
+            color: #5f2a36;
+            font-size: 14px;
+            margin-right: 4px;
+        }
+        .filter-btn {
+            background: transparent;
+            border: 1px solid #bc6f7e;
+            padding: 4px 14px;
+            border-radius: 30px;
+            font-weight: 500;
+            color: #4a1a1a;
+            cursor: pointer;
+            font-size: 13px;
+            transition: 0.1s;
+        }
+        .filter-btn:hover {
+            background: #b0304a;
+            color: white;
+            border-color: #b0304a;
+        }
+
+        /* ===== СТРЕЛКА НАЗАД ===== */
+        .back-btn {
+            background: #f0d3db;
+            border: none;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            color: #5f2a36;
+            transition: 0.15s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .back-btn:hover {
+            background: #d97a8a;
+            color: white;
+        }
+
+        .frame-head {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        .frame-head h2 {
+            color: #751f33;
+            font-size: 24px;
+        }
+
+        /* ===== КОРЗИНА (отдельная страница) ===== */
+        .cart-page {
+            display: none;
+            padding: 20px 24px 30px;
+            min-height: 50vh;
+        }
+        .cart-page.active {
+            display: block;
+        }
+        .cart-empty {
+            text-align: center;
+            padding: 50px 20px;
+            font-size: 22px;
+            color: #751f33;
+        }
+        .cart-empty i {
+            font-size: 50px;
+            color: #d97a8a;
+            display: block;
+            margin-bottom: 12px;
+        }
+
+        /* ===== СВЯЗЬ С НАМИ ===== */
+        .contact {
+            margin-top: 40px;
+            background: #fce4ea;
+            padding: 24px 28px;
+            border-radius: 32px;
+            border: 1px solid #dbb7c2;
+        }
+        .contact h3 {
+            color: #751f33;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        .contact p {
+            font-size: 17px;
+            color: #3b1a1a;
+            margin: 4px 0;
+        }
+        .contact i {
+            color: #b0304a;
+            width: 28px;
+        }
+        .contact .links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px 40px;
+            margin-top: 16px;
+        }
+        .contact .links div {
+            font-size: 14px;
+            color: #3b1a1a;
+        }
+        .contact .links strong {
+            color: #751f33;
+        }
+
+        /* ===== МОДАЛКА ПРОФИЛЯ ===== */
+        .profile-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(40, 10, 20, 0.5);
+            backdrop-filter: blur(4px);
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+        }
+        .profile-modal.open {
+            display: flex;
+        }
+        .modal-box {
+            background: #fff5f7;
+            max-width: 400px;
+            width: 92%;
+            padding: 32px 26px;
+            border-radius: 40px;
+            border: 1px solid #dbb7c2;
+            box-shadow: 0 30px 50px rgba(100, 20, 40, 0.25);
+        }
+        .modal-box .close {
+            text-align: right;
+            font-size: 28px;
+            cursor: pointer;
+            color: #751f33;
+        }
+        .modal-box h3 {
+            color: #751f33;
+            font-size: 22px;
+            margin-bottom: 16px;
+        }
+        .modal-box p {
+            color: #5f2a36;
+            margin-bottom: 6px;
+        }
+        .modal-box label {
+            font-weight: 600;
+            color: #4a1a1a;
+            display: block;
+            margin: 14px 0 4px;
+        }
+        .modal-box input {
+            width: 100%;
+            padding: 12px 18px;
+            border-radius: 40px;
+            border: 1px solid #d97a8a;
+            font-size: 16px;
+            background: white;
+        }
+        .modal-box input:focus {
+            outline: 2px solid #b0304a;
+        }
+        .modal-box .modal-btn {
+            background: #b0304a;
+            border: none;
+            padding: 12px;
+            width: 100%;
+            border-radius: 40px;
+            color: white;
+            font-weight: 700;
+            font-size: 17px;
+            margin-top: 16px;
+            cursor: pointer;
+            transition: 0.15s;
+        }
+        .modal-box .modal-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .modal-box .modal-btn:hover:not(:disabled) {
+            background: #8f1f37;
+        }
+
+        /* ===== АДАПТИВ ===== */
+        @media (max-width: 700px) {
+            .header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .header-actions {
+                justify-content: flex-end;
+            }
+            .sidebar {
+                flex: 1 1 100%;
+            }
+            .banner {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+            }
+            .banner .btn-green {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app">
+
+    <!-- ========== ШАПКА ========== -->
+    <header class="header">
+        <div class="brand"><i class="fas fa-star"></i> Astral</div>
+        <div class="search-bar">
+            <input type="text" placeholder="Поиск книг, авторов">
+            <button><i class="fas fa-search"></i></button>
+        </div>
+        <div class="header-actions">
+            <a href="#" id="cartLink"><i class="fas fa-shopping-cart"></i></a>
+            <button id="profileBtn"><i class="fas fa-user-circle"></i></button>
+        </div>
+    </header>
+
+    <!-- ========== ФРЕЙМ 1 (ГЛАВНАЯ) ========== -->
+    <div class="frame active" id="frame1">
+
+        <!-- Баннер как на скрине -->
+        <div class="banner">
+            <h2><i class="fas fa-leaf"></i> “Магическая битва”, “Человек бензопила” и другие популярные книги</h2>
+            <button class="btn-green" onclick="switchFrame(2)">Выбрать сюжет →</button>
+        </div>
+
+        <div class="catalog-wrap">
+            <!-- Каталог слева -->
+            <aside class="sidebar">
+                <h3><i class="fas fa-book-open"></i> Каталог</h3>
+                <ul>
+                    <li><i class="fas fa-layer-group"></i> Комиксы и манга</li>
+                    <li><i class="fas fa-book"></i> Манга</li>
+                    <li><i class="fas fa-dragon"></i> Руманга</li>
+                    <li><i class="fas fa-globe"></i> Манга исекай</li>
+                    <li><i class="fas fa-mask"></i> Манга сёнэн</li>
+                    <li><i class="fas fa-heart"></i> Манга сёдзё</li>
+                    <li><i class="fas fa-rainbow"></i> Манга романтика</li>
+                    <li><i class="fas fa-laugh"></i> Манга комедия</li>
+                    <li><i class="fas fa-ghost"></i> Манга ужасы</li>
+                    <li><i class="fas fa-fist-raised"></i> Манга драма</li>
+                    <li><i class="fas fa-hat-wizard"></i> Манга фэнтези</li>
+                    <li><i class="fas fa-ellipsis-h"></i> Другие жанры</li>
+                    <li><i class="fas fa-tag"></i> Тематическая манга</li>
+                    <li><i class="fas fa-pen-fancy"></i> OEL-манга</li>
+                </ul>
+            </aside>
+
+            <!-- Сетка манг -->
+            <div class="manga-grid">
+                <!-- 1 -->
+                <div class="manga-card" onclick="showInfo('Атака титанов. Том 33, 34 (Attack on Titan). Хадзимэ Исаяма', 'Покинувшие Парадиз титаны уничтожают всё на своём пути. Близится последний бой.')">
+                    <img src="https://img-gorod.ru/upload/iblock/95d/95d9b7b5e6f8e6d2b3c4d5e6f7a8b9c0.jpg?width=400" alt="Атака титанов">
+                    <div class="manga-info">
+                        <h4>Атака титанов. Том 33, 34</h4>
+                        <div class="author">Хадзимэ Исаяма</div>
+                        <div class="price-line">
+                            <span class="price">1 474₽</span>
+                            <span class="old-price">1 252₽</span>
+                            <span class="discount">-15%</span>
+                        </div>
+                        <button class="btn-buy" onclick="event.stopPropagation(); addToCart('Атака титанов. Том 33, 34')">Купить</button>
+                    </div>
+                </div>
+                <!-- 2 -->
+                <div class="manga-card" onclick="showInfo('Магическая битва. Том 11, 12 — Инцидент в Сибуе. Гэгэ Акутами', 'Инцидент в Сибуе перерастает в хаос. Маги вступают в битву с проклятиями.')">
+                    <img src="https://img-gorod.ru/upload/iblock/1a2/1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d.jpg?width=400" alt="Магическая битва">
+                    <div class="manga-info">
+                        <h4>Магическая битва. Том 11, 12</h4>
+                        <div class="author">Гэгэ Акутами</div>
+                        <div class="price-line">
+                            <span class="price">1 364₽</span>
+                            <span class="old-price">1 159₽</span>
+                            <span class="discount">-15%</span>
+                        </div>
+                        <button class="btn-buy" onclick="event.stopPropagation(); addToCart('Магическая битва. Том 11, 12')">Купить</button>
+                    </div>
+                </div>
+                <!-- 3 -->
+                <div class="manga-card" onclick="showInfo('Токийский гуль. Том 1, 2 (Tokyo Ghoul). Суи Исида', 'Кэн Канэки становится наполовину гулем. Ему предстоит выживать в мире войны.')">
+                    <img src="https://img-gorod.ru/upload/iblock/3c4/3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f.jpg?width=400" alt="Токийский гуль">
+                    <div class="manga-info">
+                        <h4>Токийский гуль. Том 1, 2</h4>
+                        <div class="author">Суи Исида</div>
+                        <div class="price-line">
+                            <span class="price">1 874₽</span>
+                            <span class="old-price">1 499₽</span>
+                            <span class="discount">-20%</span>
+                        </div>
+                        <button class="btn-buy" onclick="event.stopPropagation(); addToCart('Токийский гуль. Том 1, 2')">Купить</button>
+                    </div>
+                </div>
+                <!-- 4 -->
+                <div class="manga-card" onclick="showInfo('Человек-бензопила. Том 15 — Два ребенка... Тацуки Фудзимото', 'Дэндзи и его команда сталкиваются с новыми врагами. Битва с демонами продолжается.')">
+                    <img src="https://img-gorod.ru/upload/iblock/5d6/5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a.jpg?width=400" alt="Человек-бензопила">
+                    <div class="manga-info">
+                        <h4>Человек-бензопила. Том 15</h4>
+                        <div class="author">Тацуки Фудзимото</div>
+                        <div class="price-line">
+                            <span class="price">1 896₽</span>
+                            <span class="old-price">1 399₽</span>
+                            <span class="discount">-15%</span>
+                        </div>
+                        <button class="btn-buy" onclick="event.stopPropagation(); addToCart('Человек-бензопила. Том 15')">Купить</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== ФРЕЙМ 2 (ВТОРАЯ СТРАНИЦА) ========== -->
+    <div class="frame" id="frame2">
+        <div class="frame-head">
+            <button class="back-btn" onclick="switchFrame(1)"><i class="fas fa-arrow-left"></i></button>
+            <h2>Манга: боевик, фэнтези</h2>
+        </div>
+
+        <div class="catalog-wrap">
+            <aside class="sidebar">
+                <h3><i class="fas fa-filter"></i> Каталог</h3>
+                <ul>
+                    <li><i class="fas fa-layer-group"></i> Комиксы и манга</li>
+                    <li><i class="fas fa-book"></i> Манга</li>
+                    <li><i class="fas fa-dragon"></i> Руманга</li>
+                    <li><i class="fas fa-globe"></i> Манга исекай</li>
+                    <li><i class="fas fa-mask"></i> Манга сёнэн</li>
+                    <li><i class="fas fa-heart"></i> Манга сёдзё</li>
+                    <li><i class="fas fa-rainbow"></i> Манга романтика</li>
+                    <li><i class="fas fa-laugh"></i> Манга комедия</li>
+                    <li><i class="fas fa-ghost"></i> Манга ужасы</li>
+                    <li><i class="fas fa-fist-raised"></i> Манга драма</li>
+                    <li><i class="fas fa-hat-wizard"></i> Манга боевик</li>
+                    <li><i class="fas fa-hat-wizard"></i> Манга фэнтези</li>
+                    <li><i class="fas fa-ellipsis-h"></i> Другие жанры</li>
+                    <li><i class="fas fa-tag"></i> Тематическая манга</li>
+                    <li><i class="fas fa-pen-fancy"></i> OEL-манга</li>
+                </ul>
+            </aside>
+
+            <div style="flex:1">
+                <!-- Фильтр -->
+                <div class="filter-bar">
+                    <span><i class="fas fa-sliders-h"></i> Сортировка:</span>
+                    <button class="filter-btn" onclick="alert('По популярности')">По популярности</button>
+                    <button class="filter-btn" onclick="alert('По новизне')">По новизне</button>
+                    <button class="filter-btn" onclick="alert('Сначала дешёвые')">Сначала дешёвые</button>
+                    <button class="filter-btn" onclick="alert('Сначала дорогие')">Сначала дорогие</button>
+                    <button class="filter-btn" onclick="alert('По рейтингу')">По рейтингу</button>
+                    <button class="filter-btn" onclick="alert('Больше отзывов')">Больше отзывов</button>
+                </div>
+
+                <div class="manga-grid">
+                    <!-- 1 -->
+                    <div class="manga-card" onclick="showInfo('Катастрофа по соседству. Том 1. Сугахара Кэйта', 'Невероятные события происходят в тихом городке. Сосед оказывается не тем, кем кажется.')">
+                        <img src="https://img-gorod.ru/upload/iblock/7e8/7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b.jpg?width=400" alt="Катастрофа по соседству">
+                        <div class="manga-info">
+                            <h4>Катастрофа по соседству. Том 1</h4>
+                            <div class="author">Сугахара Кэйта</div>
+                            <div class="price-line">
+                                <span class="price">995₽</span>
+                                <span class="old-price">829₽</span>
+                                <span class="discount">-17%</span>
+                            </div>
+                            <button class="btn-buy" onclick="event.stopPropagation(); addToCart('Катастрофа по соседству. Том 1')">Купить</button>
+                        </div>
+                    </div>
+                    <!-- 2 -->
+                    <div class="manga-card" onclick="showInfo('Истребитель демонов. Том 11 (Demon Slayer). Коёхару Готогэ', 'Тандзиро и его друзья продолжают путь. Битва с демонами становится всё ожесточённее.')">
+                        <img src="https://img-gorod.ru/upload/iblock/9f0/9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c.jpg?width=400" alt="Истребитель демонов">
+                        <div class="manga-info">
+                            <h4>Истребитель демонов. Том 11</h4>
+                            <div class="author">Коёхару Готогэ</div>
+                            <div class="price-line">
+                                <span class="price">1 175₽</span>
+                                <span class="old-price">970₽</span>
+                                <span class="discount">-15%</span>
+                            </div>
+                            <button class="btn-buy" onclick="event.stopPropagation(); addToCart('Истребитель демонов. Том 11')">Купить</button>
+                        </div>
+                    </div>
+                    <!-- 3 -->
+                    <div class="manga-card" onclick="showInfo('Ван-Пис. Том 1, 2, 3 — На заре приключений. Эйитиро Ода', 'Луффи отправляется в плавание, чтобы стать королём пиратов. Первые тома культовой саги.')">
+                        <img src="https://img-gorod.ru/upload/iblock/2b3/2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e.jpg?width=400" alt="Ван-Пис">
+                        <div class="manga-info">
+                            <h4>Ван-Пис. Том 1, 2, 3</h4>
+                            <div class="author">Эйитиро Ода</div>
+                            <div class="price-line">
+                                <span class="price">1 999₽</span>
+                                <span class="old-price">1 600₽</span>
+                                <span class="discount">-20%</span>
+                            </div>
+                            <button class="btn-buy" onclick="event.stopPropagation(); addToCart('Ван-Пис. Том 1, 2, 3')">Купить</button>
+                        </div>
+                    </div>
+                    <!-- 4 -->
+                    <div class="manga-card" onclick="showInfo('Магическая битва. Том 1, 2 — Двуликий Сукуна... Гэгэ Акутами', 'Юдзи Итадори проглатывает палец Сукуны и становится вместилищем проклятия. Начало истории.')">
+                        <img src="https://img-gorod.ru/upload/iblock/4c5/4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f.jpg?width=400" alt="Магическая битва 1-2">
+                        <div class="manga-info">
+                            <h4>Магическая битва. Том 1, 2</h4>
+                            <div class="author">Гэгэ Акутами</div>
+                            <div class="price-line">
+                                <span class="price">1 569₽</span>
+                                <span class="old-price">1 345₽</span>
+                                <span class="discount">-20%</span>
+                            </div>
+                            <button class="btn-buy" onclick="event.stopPropagation(); addToCart('Магическая битва. Том 1, 2')">Купить</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== СТРАНИЦА КОРЗИНЫ ========== -->
+    <div class="cart-page" id="cartPage">
+        <div style="display:flex; align-items:center; gap:16px; margin-bottom:20px;">
+            <button class="back-btn" onclick="switchToMain()"><i class="fas fa-arrow-left"></i></button>
+            <h2 style="color:#751f33;"><i class="fas fa-shopping-cart"></i> Корзина</h2>
+        </div>
+        <div id="cartContent">
+            <div class="cart-empty">
+                <i class="fas fa-shopping-basket"></i>
+                Ваша корзина сейчас пуста
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== СВЯЗЬ С НАМИ ========== -->
+    <div style="padding: 0 24px 24px;">
+        <div class="contact">
+            <h3><i class="fas fa-phone-alt"></i> Связь с нами</h3>
+            <p><i class="fas fa-phone"></i> +7 981 280 93 79</p>
+            <p><i class="fas fa-envelope"></i> astral1988@gmail.com</p>
+            <div style="margin-top:8px; font-size:14px; color:#5f2a36;">
+                <i class="fas fa-qrcode"></i> Наведите камеру смартфона: внутри ссылка на приложение
+            </div>
+            <div class="links">
+                <div><strong>Вопросы и ответы</strong><br>Интернет-магазин<br>Знаем, что почитать</div>
+                <div><strong>Акции</strong><br>Распродажа<br>Доставка и оплата<br>Программа лояльности<br>Подарочные сертификаты<br>Правила продажи</div>
+                <div><strong>Скоро в продаже</strong><br>Эксклюзивные новинки<br>Лучшее из лучших<br>Читай-журнал<br>Книжные циклы<br>Что ещё почитать?</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== МОДАЛКА ПРОФИЛЯ ========== -->
+    <div class="profile-modal" id="profileModal">
+        <div class="modal-box">
+            <div class="close" id="closeModal">&times;</div>
+            <h3><i class="fas fa-user-circle"></i> Регистрация</h3>
+            <p>Чтобы войти или зарегистрироваться, укажите ваш номер телефона.</p>
+            <label for="phoneInput">Телефон</label>
+            <input type="tel" id="phoneInput" placeholder="+7 000 000 00 00">
+            <button class="modal-btn" id="getCodeBtn" disabled>Получить код</button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // ===== ПЕРЕКЛЮЧЕНИЕ ФРЕЙМОВ =====
+    function switchFrame(num) {
+        document.querySelectorAll('.frame').forEach(f => f.classList.remove('active'));
+        document.getElementById('frame' + num).classList.add('active');
+        document.getElementById('cartPage').classList.remove('active');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function switchToMain() {
+        document.querySelectorAll('.frame').forEach(f => f.classList.remove('active'));
+        document.getElementById('frame1').classList.add('active');
+        document.getElementById('cartPage').classList.remove('active');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ===== КОРЗИНА (отдельная страница) =====
+    let cart = [];
+
+    function addToCart(name) {
+        cart.push(name);
+        alert('✅ ' + name + ' добавлена в корзину');
+    }
+
+    function openCart() {
+        document.querySelectorAll('.frame').forEach(f => f.classList.remove('active'));
+        document.getElementById('cartPage').classList.add('active');
+        renderCart();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function renderCart() {
+        const container = document.getElementById('cartContent');
+        if (cart.length === 0) {
+            container.innerHTML = `<div class="cart-empty"><i class="fas fa-shopping-basket"></i>Ваша корзина сейчас пуста</div>`;
+            return;
+        }
+        let html = `<div style="background:#fce4ea; border-radius:24px; padding:20px;">`;
+        cart.forEach((item, i) => {
+            html += `<div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid #ebc2cc;">
+                        <span>${item}</span>
+                        <button onclick="removeFromCart(${i})" style="background:#b0304a; border:none; color:white; padding:4px 14px; border-radius:20px; cursor:pointer;">✕</button>
+                     </div>`;
+        });
+        html += `<div style="margin-top:16px; font-weight:700; color:#751f33;">Итого: ${cart.length} товара(ов)</div>`;
+        html += `<button onclick="alert('Заказ оформлен!')" style="background:#b0304a; border:none; color:white; padding:12px 30px; border-radius:40px; font-weight:700; cursor:pointer; margin-top:12px;">Оформить заказ</button>`;
+        html += `</div>`;
+        container.innerHTML = html;
+    }
+
+    function removeFromCart(index) {
+        cart.splice(index, 1);
+        renderCart();
+    }
+
+    // ===== КЛИК ПО КОРЗИНЕ В ШАПКЕ =====
+    document.getElementById('cartLink').addEventListener('click', function(e) {
+        e.preventDefault();
+        openCart();
+    });
+
+    // ===== ПРОФИЛЬ =====
+    const profileBtn = document.getElementById('profileBtn');
+    const profileModal = document.getElementById('profileModal');
+    const closeModal = document.getElementById('closeModal');
+    const phoneInput = document.getElementById('phoneInput');
+    const getCodeBtn = document.getElementById('getCodeBtn');
+
+    profileBtn.addEventListener('click', () => profileModal.classList.add('open'));
+    closeModal.addEventListener('click', () => profileModal.classList.remove('open'));
+    profileModal.addEventListener('click', (e) => { if (e.target === profileModal) profileModal.classList.remove('open'); });
+
+    phoneInput.addEventListener('input', function() {
+        getCodeBtn.disabled = this.value.trim().length < 5;
+    });
+    getCodeBtn.addEventListener('click', function() {
+        if (!this.disabled) {
+            alert('Код отправлен на номер ' + phoneInput.value.trim());
+            profileModal.classList.remove('open');
+        }
+    });
+
+    // ===== ИНФО О МАНГЕ =====
+    function showInfo(title, desc) {
+        alert('📖 ' + title + '\n\n' + desc);
+    }
+</script>
+
+</body>
+</html>
